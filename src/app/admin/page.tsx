@@ -438,7 +438,7 @@ function DashboardView({
                   <button
                     key={cellIdx}
                     onClick={() => setSelectedCell(isSelected ? null : cellIdx)}
-                    className={`aspect-square rounded-lg flex items-center justify-center text-lg font-bold transition-all ${
+                    className={`aspect-square rounded-lg flex flex-col items-center justify-center text-sm font-medium transition-all ${
                       solved
                         ? isSelected
                           ? "bg-green-500 text-white ring-2 ring-white"
@@ -448,27 +448,40 @@ function DashboardView({
                           : "bg-gray-700 text-gray-400 hover:bg-gray-600"
                     }`}
                   >
-                    {solved ? "\u2713" : "?"}
+                    {solved ? (
+                      <>
+                        <span className="text-lg">&#10003;</span>
+                        <span className="text-xs truncate w-full px-1 text-center">
+                          {selectedPlayer.solves[cellIdx].answeredBy}
+                        </span>
+                      </>
+                    ) : (
+                      <span className="text-lg">?</span>
+                    )}
                   </button>
                 );
               })}
             </div>
 
-            {/* Question detail */}
-            {selectedCell !== null && (
-              <div className="bg-gray-800 rounded-xl p-4 space-y-3">
-                <p className="text-white text-center leading-relaxed whitespace-pre-line">
-                  {config.questions[selectedPlayer.board[selectedCell]]}
-                </p>
-                {selectedCell in selectedPlayer.solves ? (
-                  <p className="text-green-400 text-center font-semibold">
-                    {selectedPlayer.solves[selectedCell].answeredBy}
+            {/* Question detail — always rendered to avoid layout shift */}
+            <div className="bg-gray-800 rounded-xl p-4 min-h-[120px] flex flex-col items-center justify-center space-y-3">
+              {selectedCell !== null ? (
+                <>
+                  <p className="text-white text-center leading-relaxed whitespace-pre-line">
+                    {config.questions[selectedPlayer.board[selectedCell]]}
                   </p>
-                ) : (
-                  <p className="text-gray-500 text-center">Not resolved</p>
-                )}
-              </div>
-            )}
+                  {selectedCell in selectedPlayer.solves ? (
+                    <p className="text-green-400 text-center font-semibold">
+                      {selectedPlayer.solves[selectedCell].answeredBy}
+                    </p>
+                  ) : (
+                    <p className="text-gray-500 text-center">Not resolved</p>
+                  )}
+                </>
+              ) : (
+                <p className="text-gray-500 text-center">Tap a cell to view question</p>
+              )}
+            </div>
           </div>
         </div>
       )}
