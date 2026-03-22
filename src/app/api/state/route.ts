@@ -1,7 +1,9 @@
 import { NextResponse } from "next/server";
 import { gameStore } from "@/lib/game-store";
+import { checkAndExpireGame } from "@/lib/time-check";
 
 export async function GET() {
+  checkAndExpireGame();
   const state = gameStore.getState();
   const rankings = gameStore.getRankings();
 

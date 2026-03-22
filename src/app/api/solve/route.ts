@@ -1,8 +1,10 @@
 import { NextResponse } from "next/server";
 import { gameStore } from "@/lib/game-store";
+import { checkAndExpireGame } from "@/lib/time-check";
 
 export async function POST(request: Request) {
   try {
+    checkAndExpireGame();
     const { nickname, cellIndex, answeredBy } = await request.json();
     gameStore.solve(nickname, cellIndex, answeredBy);
     return NextResponse.json({ success: true });
