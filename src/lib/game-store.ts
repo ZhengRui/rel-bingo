@@ -92,8 +92,11 @@ class GameStore {
   }
 
   join(nickname: string): { board: number[]; questions: string[] } {
-    if (this.state.status !== "active") {
-      throw new Error("Game is not active");
+    if (this.state.status === "setup") {
+      throw new Error("Game hasn't started yet. Please wait for the host.");
+    }
+    if (this.state.status === "ended") {
+      throw new Error("Game is already over.");
     }
     if (this.state.players.has(nickname)) {
       throw new Error("Nickname already taken");
@@ -114,8 +117,11 @@ class GameStore {
   }
 
   solve(nickname: string, cellIndex: number, answeredBy: string) {
-    if (this.state.status !== "active") {
-      throw new Error("Game is not active");
+    if (this.state.status === "setup") {
+      throw new Error("Game hasn't started yet.");
+    }
+    if (this.state.status === "ended") {
+      throw new Error("Game is already over.");
     }
     const player = this.state.players.get(nickname);
     if (!player) throw new Error("Player not found");

@@ -189,7 +189,7 @@ function BoardView({
         setInputName("");
       } else {
         const data = await res.json();
-        if (data.error === "Game is not active") {
+        if (data.error === "Game is already over.") {
           setGameOverPopup(true);
           setActiveCell(null);
         }

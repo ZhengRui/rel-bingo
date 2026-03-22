@@ -84,9 +84,20 @@ describe("gameStore", () => {
       expect(() => gameStore.join("Alice")).toThrow("Nickname already taken");
     });
 
-    it("rejects join when game is not active", () => {
+    it("rejects join when game is over", () => {
       gameStore.end();
-      expect(() => gameStore.join("Bob")).toThrow("Game is not active");
+      expect(() => gameStore.join("Bob")).toThrow("Game is already over.");
+    });
+
+    it("rejects join when game hasn't started", () => {
+      gameStore.reset();
+      gameStore.setup({
+        n: 3,
+        mode: "leaderboard",
+        timeLimit: 10,
+        questions: makeQuestions(9),
+      });
+      expect(() => gameStore.join("Bob")).toThrow("Game hasn't started yet");
     });
   });
 
@@ -123,10 +134,10 @@ describe("gameStore", () => {
       );
     });
 
-    it("rejects solve when game is not active", () => {
+    it("rejects solve when game is over", () => {
       gameStore.end();
       expect(() => gameStore.solve("Alice", 0, "Bob")).toThrow(
-        "Game is not active"
+        "Game is already over."
       );
     });
 
