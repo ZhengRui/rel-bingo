@@ -370,16 +370,11 @@ export default function HomePage() {
   const [player, setPlayer] = useState<PlayerData | null>(null);
   const [checked, setChecked] = useState(false);
 
-  // On mount, restore from localStorage. If no gameId, it's stale — clear it.
+  // On mount, restore from localStorage — never clear it here
   useEffect(() => {
     const stored = loadPlayer();
     if (stored) {
-      if (!stored.gameId) {
-        // Legacy data without gameId — clear it
-        clearStorage();
-      } else {
-        setPlayer(stored);
-      }
+      setPlayer(stored);
     }
     setChecked(true);
   }, []);
