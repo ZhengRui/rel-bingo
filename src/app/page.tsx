@@ -144,7 +144,8 @@ function BoardView({
   const [activeCell, setActiveCell] = useState<number | null>(null);
   const [inputName, setInputName] = useState("");
   const [submitting, setSubmitting] = useState(false);
-  const [gameOver, setGameOver] = useState(false);
+  // If no gameId stored, it's definitely from an old game
+  const [gameOver, setGameOver] = useState(!player.gameId);
   const [rejoinConfirm, setRejoinConfirm] = useState(false);
 
   // Check game state on mount — derive gameOver from gameId comparison
@@ -156,7 +157,7 @@ function BoardView({
           setGameOver(true);
         }
       })
-      .catch(() => {});
+      .catch((err) => console.error("Failed to check game state:", err));
   }, [player.gameId]);
 
   const n = Math.sqrt(player.board.length);
