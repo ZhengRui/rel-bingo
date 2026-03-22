@@ -323,7 +323,7 @@ function DashboardView({
           return (
             <div
               key={player.nickname}
-              className={`flex items-center gap-4 px-5 py-3 rounded-xl transition-all ${
+              className={`flex items-center gap-5 px-6 py-5 rounded-xl transition-all ${
                 hasBingo
                   ? "bg-gradient-to-r from-yellow-900/40 to-yellow-800/20 border border-yellow-500/50"
                   : "bg-gray-800/80"
@@ -331,7 +331,7 @@ function DashboardView({
             >
               {/* Rank */}
               <span
-                className={`text-2xl font-bold w-8 text-right ${
+                className={`text-5xl font-bold w-12 text-right ${
                   index === 0 && players.length > 1
                     ? "text-yellow-400"
                     : index === 1
@@ -345,23 +345,23 @@ function DashboardView({
               </span>
 
               {/* Name + solve count */}
-              <div className="flex-1 min-w-0 flex items-baseline gap-3">
-                <span className="text-2xl font-bold truncate">
+              <div className="flex-1 min-w-0 flex items-baseline gap-4">
+                <span className="text-4xl font-bold truncate">
                   {player.nickname}
                 </span>
-                <span className="text-2xl font-bold text-gray-400">
+                <span className="text-4xl font-bold text-gray-400">
                   {player.solveCount}/{totalCells}
                 </span>
               </div>
 
               {/* Bingo pills — centered */}
-              <div className="flex-1 flex justify-center items-center gap-3">
+              <div className="flex-1 flex justify-center items-center gap-4">
                 {hasBingo && (
                   <>
-                    <span className="px-4 py-1 bg-yellow-400 text-black text-sm font-bold rounded-full animate-pulse">
+                    <span className="px-5 py-1.5 bg-yellow-400 text-black text-lg font-bold rounded-full animate-pulse">
                       BINGO
                     </span>
-                    <span className="text-2xl font-bold text-yellow-400">
+                    <span className="text-4xl font-bold text-yellow-400">
                       x {player.bingoCount}
                     </span>
                   </>
@@ -370,7 +370,7 @@ function DashboardView({
 
               {/* Mini grid */}
               <div
-                className="grid gap-0.5 shrink-0"
+                className="grid gap-1 shrink-0"
                 style={{
                   gridTemplateColumns: `repeat(${config.n}, 1fr)`,
                 }}
@@ -380,7 +380,7 @@ function DashboardView({
                   return (
                     <div
                       key={cellIdx}
-                      className={`w-5 h-5 rounded-sm ${
+                      className={`w-7 h-7 rounded ${
                         solved ? "bg-green-500" : "bg-gray-600"
                       }`}
                     />
