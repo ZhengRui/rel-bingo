@@ -1,0 +1,170 @@
+import { checkBingo } from "./bingo";
+
+export type GameMode = "leaderboard" | "bingo";
+export type GameStatus = "setup" | "active" | "ended";
+
+export interface SolveInfo {
+  answeredBy: string;
+  solvedAt: number;
+}
+
+export interface Player {
+  nickname: string;
+  joinedAt: number;
+  board: number[];
+  solves: Map<number, SolveInfo>;
+  hasBingo: boolean;
+  bingoAt: number | null;
+}
+
+export interface GameConfig {
+  n: number;
+  mode: GameMode;
+  timeLimit: number;
+  questions: string[];
+}
+
+export interface GameState {
+  config: GameConfig;
+  status: GameStatus;
+  startedAt: number | null;
+  players: Map<string, Player>;
+}
+
+export interface RankedPlayer {
+  nickname: string;
+  solveCount: number;
+  lastSolveAt: number | null;
+  board: number[];
+  solves: Map<number, SolveInfo>;
+  hasBingo: boolean;
+  bingoAt: number | null;
+}
+
+function shuffle(arr: number[]): number[] {
+  const result = [...arr];
+  for (let i = result.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [result[i], result[j]] = [result[j], result[i]];
+  }
+  return result;
+}
+
+class GameStore {
+  private state: GameState = {
+    config: { n: 3, mode: "leaderboard", timeLimit: 10, questions: [] },
+    status: "setup",
+    startedAt: null,
+    players: new Map(),
+  };
+
+  reset() {
+    this.state = {
+      config: { n: 3, mode: "leaderboard", timeLimit: 10, questions: [] },
+      status: "setup",
+      startedAt: null,
+      players: new Map(),
+    };
+  }
+
+  setup(config: {
+    n: number;
+    mode: GameMode;
+    timeLimit: number;
+    questions: string[];
+  }) {
+    const needed = config.n * config.n;
+    if (config.questions.length < needed) {
+      throw new Error(`Need at least ${needed} questions`);
+    }
+    this.state.config = {
+      ...config,
+      questions: config.questions.slice(0, needed),
+    };
+    this.state.status = "setup";
+    this.state.startedAt = null;
+    this.state.players = new Map();
+  }
+
+  start() {
+    this.state.status = "active";
+    this.state.startedAt = Date.now();
+  }
+
+  join(nickname: string): { board: number[]; questions: string[] } {
+    if (this.state.status !== "active") {
+      throw new Error("Game is not active");
+    }
+    if (this.state.players.has(nickname)) {
+      throw new Error("Nickname already taken");
+    }
+    const n = this.state.config.n;
+    const indices = Array.from({ length: n * n }, (_, i) => i);
+    const board = shuffle(indices);
+    const player: Player = {
+      nickname,
+      joinedAt: Date.now(),
+      board,
+      solves: new Map(),
+      hasBingo: false,
+      bingoAt: null,
+    };
+    this.state.players.set(nickname, player);
+    return { board, questions: this.state.config.questions };
+  }
+
+  solve(nickname: string, cellIndex: number, answeredBy: string) {
+    if (this.state.status !== "active") {
+      throw new Error("Game is not active");
+    }
+    const player = this.state.players.get(nickname);
+    if (!player) throw new Error("Player not found");
+    if (player.solves.has(cellIndex)) throw new Error("Cell already solved");
+    player.solves.set(cellIndex, { answeredBy, solvedAt: Date.now() });
+    if (!player.hasBingo) {
+      const solvedCells = new Set(player.solves.keys());
+      if (checkBingo(this.state.config.n, solvedCells)) {
+        player.hasBingo = true;
+        player.bingoAt = Date.now();
+      }
+    }
+  }
+
+  end() {
+    this.state.status = "ended";
+  }
+
+  getState(): GameState {
+    return this.state;
+  }
+
+  getRankings(): RankedPlayer[] {
+    const players = Array.from(this.state.players.values());
+    return players
+      .map((p) => ({
+        nickname: p.nickname,
+        solveCount: p.solves.size,
+        lastSolveAt:
+          p.solves.size > 0
+            ? Math.max(...Array.from(p.solves.values()).map((s) => s.solvedAt))
+            : null,
+        board: p.board,
+        solves: p.solves,
+        hasBingo: p.hasBingo,
+        bingoAt: p.bingoAt,
+      }))
+      .sort((a, b) => {
+        if (this.state.config.mode === "bingo") {
+          if (a.hasBingo && !b.hasBingo) return -1;
+          if (!a.hasBingo && b.hasBingo) return 1;
+          if (a.hasBingo && b.hasBingo) return a.bingoAt! - b.bingoAt!;
+        }
+        if (b.solveCount !== a.solveCount) return b.solveCount - a.solveCount;
+        if (a.lastSolveAt === null) return 1;
+        if (b.lastSolveAt === null) return -1;
+        return a.lastSolveAt - b.lastSolveAt;
+      });
+  }
+}
+
+export const gameStore = new GameStore();
