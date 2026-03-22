@@ -1,4 +1,4 @@
-import { checkBingo } from "./bingo";
+import { countBingoLines } from "./bingo";
 
 export type GameMode = "leaderboard" | "bingo";
 export type GameStatus = "setup" | "active" | "ended";
@@ -13,8 +13,8 @@ export interface Player {
   joinedAt: number;
   board: number[];
   solves: Map<number, SolveInfo>;
-  hasBingo: boolean;
-  bingoAt: number | null;
+  bingoCount: number;
+  firstBingoAt: number | null;
 }
 
 export interface GameConfig {
@@ -37,8 +37,8 @@ export interface RankedPlayer {
   lastSolveAt: number | null;
   board: number[];
   solves: Map<number, SolveInfo>;
-  hasBingo: boolean;
-  bingoAt: number | null;
+  bingoCount: number;
+  firstBingoAt: number | null;
 }
 
 function shuffle(arr: number[]): number[] {
@@ -106,8 +106,8 @@ class GameStore {
       joinedAt: Date.now(),
       board,
       solves: new Map(),
-      hasBingo: false,
-      bingoAt: null,
+      bingoCount: 0,
+      firstBingoAt: null,
     };
     this.state.players.set(nickname, player);
     return { board, questions: this.state.config.questions };
@@ -121,13 +121,12 @@ class GameStore {
     if (!player) throw new Error("Player not found");
     if (player.solves.has(cellIndex)) throw new Error("Cell already solved");
     player.solves.set(cellIndex, { answeredBy, solvedAt: Date.now() });
-    if (!player.hasBingo) {
-      const solvedCells = new Set(player.solves.keys());
-      if (checkBingo(this.state.config.n, solvedCells)) {
-        player.hasBingo = true;
-        player.bingoAt = Date.now();
-      }
+    const solvedCells = new Set(player.solves.keys());
+    const newCount = countBingoLines(this.state.config.n, solvedCells);
+    if (newCount > 0 && player.firstBingoAt === null) {
+      player.firstBingoAt = Date.now();
     }
+    player.bingoCount = newCount;
   }
 
   end() {
@@ -150,16 +149,15 @@ class GameStore {
             : null,
         board: p.board,
         solves: p.solves,
-        hasBingo: p.hasBingo,
-        bingoAt: p.bingoAt,
+        bingoCount: p.bingoCount,
+        firstBingoAt: p.firstBingoAt,
       }))
       .sort((a, b) => {
-        if (this.state.config.mode === "bingo") {
-          if (a.hasBingo && !b.hasBingo) return -1;
-          if (!a.hasBingo && b.hasBingo) return 1;
-          if (a.hasBingo && b.hasBingo) return a.bingoAt! - b.bingoAt!;
-        }
+        // Sort by bingo count desc
+        if (b.bingoCount !== a.bingoCount) return b.bingoCount - a.bingoCount;
+        // Then by solve count desc
         if (b.solveCount !== a.solveCount) return b.solveCount - a.solveCount;
+        // Then by last solve time asc (earlier is better)
         if (a.lastSolveAt === null) return 1;
         if (b.lastSolveAt === null) return -1;
         return a.lastSolveAt - b.lastSolveAt;

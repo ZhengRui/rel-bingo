@@ -130,14 +130,24 @@ describe("gameStore", () => {
       );
     });
 
-    it("detects bingo on solve", () => {
-      // Solve an entire row — cells 0, 1, 2
+    it("counts bingo lines on solve", () => {
       gameStore.solve("Alice", 0, "X");
       gameStore.solve("Alice", 1, "Y");
       gameStore.solve("Alice", 2, "Z");
       const alice = gameStore.getState().players.get("Alice")!;
-      expect(alice.hasBingo).toBe(true);
-      expect(alice.bingoAt).toBeDefined();
+      expect(alice.bingoCount).toBe(1);
+      expect(alice.firstBingoAt).toBeDefined();
+    });
+
+    it("counts multiple bingo lines", () => {
+      // Row 0: 0,1,2 + Col 0: 0,3,6
+      gameStore.solve("Alice", 0, "X");
+      gameStore.solve("Alice", 1, "Y");
+      gameStore.solve("Alice", 2, "Z");
+      gameStore.solve("Alice", 3, "A");
+      gameStore.solve("Alice", 6, "B");
+      const alice = gameStore.getState().players.get("Alice")!;
+      expect(alice.bingoCount).toBe(2);
     });
   });
 
@@ -182,6 +192,21 @@ describe("gameStore", () => {
       gameStore.solve("Bob", 0, "Y");
       const rankings = gameStore.getRankings();
       expect(rankings[0].nickname).toBe("Alice");
+    });
+
+    it("ranks by bingo count first", () => {
+      // Give Alice a bingo (row 0)
+      gameStore.solve("Alice", 0, "X");
+      gameStore.solve("Alice", 1, "Y");
+      gameStore.solve("Alice", 2, "Z");
+      // Give Bob more solves but no bingo
+      gameStore.solve("Bob", 0, "A");
+      gameStore.solve("Bob", 3, "B");
+      gameStore.solve("Bob", 5, "C");
+      gameStore.solve("Bob", 7, "D");
+      const rankings = gameStore.getRankings();
+      expect(rankings[0].nickname).toBe("Alice");
+      expect(rankings[0].bingoCount).toBe(1);
     });
   });
 });

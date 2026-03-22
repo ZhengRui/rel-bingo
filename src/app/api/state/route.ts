@@ -9,8 +9,8 @@ export async function GET() {
     nickname: p.nickname,
     solveCount: p.solveCount,
     lastSolveAt: p.lastSolveAt,
-    hasBingo: p.hasBingo,
-    bingoAt: p.bingoAt,
+    bingoCount: p.bingoCount,
+    firstBingoAt: p.firstBingoAt,
     board: p.board,
     solves: Object.fromEntries(p.solves),
   }));

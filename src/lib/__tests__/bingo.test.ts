@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { checkBingo } from "@/lib/bingo";
+import { checkBingo, countBingoLines } from "@/lib/bingo";
 
 describe("checkBingo", () => {
   const n = 3;
@@ -37,5 +37,26 @@ describe("checkBingo", () => {
     expect(checkBingo(4, new Set([0, 5, 10, 15]))).toBe(true);
     expect(checkBingo(4, new Set([3, 6, 9, 12]))).toBe(true);
     expect(checkBingo(4, new Set([0, 1, 2]))).toBe(false);
+  });
+});
+
+describe("countBingoLines", () => {
+  it("returns 0 for no lines", () => {
+    expect(countBingoLines(3, new Set([0, 1]))).toBe(0);
+  });
+
+  it("returns 1 for a single row", () => {
+    expect(countBingoLines(3, new Set([0, 1, 2]))).toBe(1);
+  });
+
+  it("returns 2 for a row and column", () => {
+    // Row 0 (0,1,2) + Col 0 (0,3,6)
+    expect(countBingoLines(3, new Set([0, 1, 2, 3, 6]))).toBe(2);
+  });
+
+  it("counts all lines on full board", () => {
+    // 3x3 full: 3 rows + 3 cols + 2 diags = 8
+    const all = new Set([0, 1, 2, 3, 4, 5, 6, 7, 8]);
+    expect(countBingoLines(3, all)).toBe(8);
   });
 });

@@ -1,4 +1,5 @@
-export function checkBingo(n: number, solvedCells: Set<number>): boolean {
+export function countBingoLines(n: number, solvedCells: Set<number>): number {
+  let count = 0;
   // Check rows
   for (let i = 0; i < n; i++) {
     let complete = true;
@@ -8,7 +9,7 @@ export function checkBingo(n: number, solvedCells: Set<number>): boolean {
         break;
       }
     }
-    if (complete) return true;
+    if (complete) count++;
   }
   // Check columns
   for (let j = 0; j < n; j++) {
@@ -19,7 +20,7 @@ export function checkBingo(n: number, solvedCells: Set<number>): boolean {
         break;
       }
     }
-    if (complete) return true;
+    if (complete) count++;
   }
   // Main diagonal
   let complete = true;
@@ -29,7 +30,7 @@ export function checkBingo(n: number, solvedCells: Set<number>): boolean {
       break;
     }
   }
-  if (complete) return true;
+  if (complete) count++;
   // Anti-diagonal
   complete = true;
   for (let i = 0; i < n; i++) {
@@ -38,5 +39,10 @@ export function checkBingo(n: number, solvedCells: Set<number>): boolean {
       break;
     }
   }
-  return complete;
+  if (complete) count++;
+  return count;
+}
+
+export function checkBingo(n: number, solvedCells: Set<number>): boolean {
+  return countBingoLines(n, solvedCells) > 0;
 }
