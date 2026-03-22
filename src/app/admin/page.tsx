@@ -345,12 +345,12 @@ function DashboardView({
               </span>
 
               {/* Name */}
-              <span className="text-4xl font-bold truncate flex-1 min-w-0">
+              <span className="text-4xl font-bold truncate min-w-0 w-48">
                 {player.nickname}
               </span>
 
               {/* Bingo count */}
-              <div className="w-64 flex justify-center items-center gap-4">
+              <div className="flex-1 flex justify-center items-center gap-4">
                 {hasBingo && (
                   <>
                     <span className="px-5 py-1.5 bg-yellow-400 text-black text-lg font-bold rounded-full animate-pulse">
