@@ -146,6 +146,24 @@ function BoardView({
   const [gameOverPopup, setGameOverPopup] = useState(false);
   const [rejoinConfirm, setRejoinConfirm] = useState(false);
 
+  // Poll for game-over (catches time expiry even if player isn't solving)
+  useEffect(() => {
+    if (gameOver) return;
+    const poll = setInterval(async () => {
+      try {
+        const res = await fetch("/api/state");
+        if (res.ok) {
+          const data = await res.json();
+          if (data.status === "ended" || data.status === "setup") {
+            setGameOver(true);
+            setGameOverPopup(true);
+          }
+        }
+      } catch { /* ignore */ }
+    }, 5000);
+    return () => clearInterval(poll);
+  }, [gameOver]);
+
   const n = Math.sqrt(player.board.length);
   const activeQuestionIndex =
     activeCell !== null ? player.board[activeCell] : null;
