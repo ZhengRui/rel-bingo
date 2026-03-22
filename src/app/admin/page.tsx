@@ -464,10 +464,10 @@ function DashboardView({
             </div>
 
             {/* Question detail — always rendered to avoid layout shift */}
-            <div className="bg-gray-800 rounded-xl p-6 min-h-[200px] flex flex-col items-center justify-center space-y-3">
+            <div className="bg-gray-800 rounded-xl p-8 h-[320px] flex flex-col items-center justify-center space-y-4">
               {selectedCell !== null ? (
                 <>
-                  <p className="text-white text-2xl text-center leading-relaxed whitespace-pre-line">
+                  <p className="text-white text-3xl font-bold text-center leading-relaxed whitespace-pre-line">
                     {config.questions[selectedPlayer.board[selectedCell]]}
                   </p>
                   {selectedCell in selectedPlayer.solves ? (
