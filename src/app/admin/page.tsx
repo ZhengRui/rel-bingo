@@ -344,18 +344,18 @@ function DashboardView({
                 {index + 1}
               </span>
 
-              {/* Name + solve count */}
-              <div className="flex-1 min-w-0 flex items-baseline gap-4">
-                <span className="text-4xl font-bold truncate">
-                  {player.nickname}
-                </span>
-                <span className="text-4xl font-bold text-gray-400">
-                  {player.solveCount}/{totalCells}
-                </span>
-              </div>
+              {/* Name */}
+              <span className="text-4xl font-bold truncate flex-1 min-w-0">
+                {player.nickname}
+              </span>
+
+              {/* Solve count */}
+              <span className="text-4xl font-bold text-gray-400 w-28 text-center tabular-nums">
+                {player.solveCount}/{totalCells}
+              </span>
 
               {/* Bingo pills — centered */}
-              <div className="flex-1 flex justify-center items-center gap-4">
+              <div className="w-64 flex justify-center items-center gap-4">
                 {hasBingo && (
                   <>
                     <span className="px-5 py-1.5 bg-yellow-400 text-black text-lg font-bold rounded-full animate-pulse">
