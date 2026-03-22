@@ -1,36 +1,42 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Relationship Bingo
 
-## Getting Started
+A social icebreaker web game for in-person meetups. Attendees get a randomized bingo board of yes/no questions about dating and relationships, then mingle to find people who answer "yes."
 
-First, run the development server:
+## Development
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+bun install
+bun run dev -p 5000 --hostname 0.0.0.0
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+- Player: `http://localhost:5000`
+- Admin: `http://localhost:5000/admin`
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Production Deployment
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Build
 
-## Learn More
+```bash
+bun run build
+```
 
-To learn more about Next.js, take a look at the following resources:
+### Start with pm2
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+bun add pm2
+bunx pm2 start "bun run start -p 5000 -H 0.0.0.0" --name relationship-bingo
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### pm2 Commands
 
-## Deploy on Vercel
+```bash
+bunx pm2 logs relationship-bingo     # view logs
+bunx pm2 restart relationship-bingo  # restart
+bunx pm2 stop relationship-bingo     # stop
+bunx pm2 delete relationship-bingo   # remove
+bunx pm2 status                      # list all processes
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### Note
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+This app uses in-memory state — all game data lives in the server process. A server restart resets the game. Do not deploy to serverless platforms (e.g. Vercel) as they don't share memory between function invocations.
