@@ -349,12 +349,7 @@ function DashboardView({
                 {player.nickname}
               </span>
 
-              {/* Solve count */}
-              <span className="text-4xl font-bold text-gray-400 w-28 text-center tabular-nums">
-                {player.solveCount}/{totalCells}
-              </span>
-
-              {/* Bingo pills — centered */}
+              {/* Bingo count */}
               <div className="w-64 flex justify-center items-center gap-4">
                 {hasBingo && (
                   <>
@@ -367,6 +362,11 @@ function DashboardView({
                   </>
                 )}
               </div>
+
+              {/* Solve count */}
+              <span className="text-4xl font-bold text-gray-400 w-28 text-center tabular-nums">
+                {player.solveCount}/{totalCells}
+              </span>
 
               {/* Mini grid */}
               <div
