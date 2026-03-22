@@ -410,25 +410,25 @@ function DashboardView({
           onClick={() => { setSelectedPlayer(null); setSelectedCell(null); }}
         >
           <div
-            className="bg-gray-900 border border-white/20 rounded-2xl p-8 w-full max-w-lg space-y-6"
+            className="bg-gray-900 border border-white/20 rounded-2xl p-10 w-full max-w-4xl space-y-8"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Player name */}
             <div className="text-center">
-              <h3 className="text-3xl font-bold text-white">
+              <h3 className="text-5xl font-bold text-white">
                 {selectedPlayer.nickname}
               </h3>
-              <p className="text-gray-400 mt-1">
+              <p className="text-gray-400 text-xl mt-2">
                 {selectedPlayer.solveCount} / {totalCells} solved
               </p>
             </div>
 
             {/* Big grid */}
             <div
-              className="grid gap-2 mx-auto"
+              className="grid gap-3 mx-auto"
               style={{
                 gridTemplateColumns: `repeat(${config.n}, 1fr)`,
-                maxWidth: `${config.n * 80}px`,
+                maxWidth: `${config.n * 120}px`,
               }}
             >
               {Array.from({ length: totalCells }).map((_, cellIdx) => {
@@ -438,7 +438,7 @@ function DashboardView({
                   <button
                     key={cellIdx}
                     onClick={() => setSelectedCell(isSelected ? null : cellIdx)}
-                    className={`aspect-square rounded-lg flex flex-col items-center justify-center text-sm font-medium transition-all ${
+                    className={`aspect-square rounded-xl flex flex-col items-center justify-center text-base font-medium transition-all ${
                       solved
                         ? isSelected
                           ? "bg-green-500 text-white ring-2 ring-white"
@@ -450,13 +450,13 @@ function DashboardView({
                   >
                     {solved ? (
                       <>
-                        <span className="text-lg">&#10003;</span>
-                        <span className="text-xs truncate w-full px-1 text-center">
+                        <span className="text-2xl">&#10003;</span>
+                        <span className="text-sm truncate w-full px-1 text-center">
                           {selectedPlayer.solves[cellIdx].answeredBy}
                         </span>
                       </>
                     ) : (
-                      <span className="text-lg">?</span>
+                      <span className="text-2xl">?</span>
                     )}
                   </button>
                 );
@@ -464,22 +464,22 @@ function DashboardView({
             </div>
 
             {/* Question detail — always rendered to avoid layout shift */}
-            <div className="bg-gray-800 rounded-xl p-4 min-h-[120px] flex flex-col items-center justify-center space-y-3">
+            <div className="bg-gray-800 rounded-xl p-6 min-h-[200px] flex flex-col items-center justify-center space-y-3">
               {selectedCell !== null ? (
                 <>
-                  <p className="text-white text-center leading-relaxed whitespace-pre-line">
+                  <p className="text-white text-lg text-center leading-relaxed whitespace-pre-line">
                     {config.questions[selectedPlayer.board[selectedCell]]}
                   </p>
                   {selectedCell in selectedPlayer.solves ? (
-                    <p className="text-green-400 text-center font-semibold">
+                    <p className="text-green-400 text-xl text-center font-semibold">
                       {selectedPlayer.solves[selectedCell].answeredBy}
                     </p>
                   ) : (
-                    <p className="text-gray-500 text-center">Not resolved</p>
+                    <p className="text-gray-500 text-lg text-center">Not resolved</p>
                   )}
                 </>
               ) : (
-                <p className="text-gray-500 text-center">Tap a cell to view question</p>
+                <p className="text-gray-500 text-lg text-center">Tap a cell to view question</p>
               )}
             </div>
           </div>
