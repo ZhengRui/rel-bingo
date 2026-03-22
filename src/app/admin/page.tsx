@@ -425,10 +425,10 @@ function DashboardView({
 
             {/* Big grid */}
             <div
-              className="grid gap-3 mx-auto"
+              className="grid gap-2 mx-auto"
               style={{
                 gridTemplateColumns: `repeat(${config.n}, 1fr)`,
-                maxWidth: `${config.n * 120}px`,
+                maxWidth: `${config.n * 90}px`,
               }}
             >
               {Array.from({ length: totalCells }).map((_, cellIdx) => {
@@ -451,7 +451,7 @@ function DashboardView({
                     {solved ? (
                       <>
                         <span className="text-2xl">&#10003;</span>
-                        <span className="text-sm truncate w-full px-1 text-center">
+                        <span className="text-sm font-bold truncate w-full px-1 text-center">
                           {selectedPlayer.solves[cellIdx].answeredBy}
                         </span>
                       </>
@@ -467,15 +467,15 @@ function DashboardView({
             <div className="bg-gray-800 rounded-xl p-6 min-h-[200px] flex flex-col items-center justify-center space-y-3">
               {selectedCell !== null ? (
                 <>
-                  <p className="text-white text-lg text-center leading-relaxed whitespace-pre-line">
+                  <p className="text-white text-2xl text-center leading-relaxed whitespace-pre-line">
                     {config.questions[selectedPlayer.board[selectedCell]]}
                   </p>
                   {selectedCell in selectedPlayer.solves ? (
-                    <p className="text-green-400 text-xl text-center font-semibold">
+                    <p className="text-green-400 text-3xl text-center font-bold">
                       {selectedPlayer.solves[selectedCell].answeredBy}
                     </p>
                   ) : (
-                    <p className="text-gray-500 text-lg text-center">Not resolved</p>
+                    <p className="text-gray-500 text-2xl text-center">Not resolved</p>
                   )}
                 </>
               ) : (
