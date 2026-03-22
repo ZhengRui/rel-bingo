@@ -25,6 +25,7 @@ export interface GameConfig {
 }
 
 export interface GameState {
+  gameId: string;
   config: GameConfig;
   status: GameStatus;
   startedAt: number | null;
@@ -50,8 +51,13 @@ function shuffle(arr: number[]): number[] {
   return result;
 }
 
+function generateGameId(): string {
+  return Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+}
+
 class GameStore {
   private state: GameState = {
+    gameId: generateGameId(),
     config: { n: 3, mode: "leaderboard", timeLimit: 10, questions: [] },
     status: "setup",
     startedAt: null,
@@ -60,6 +66,7 @@ class GameStore {
 
   reset() {
     this.state = {
+      gameId: generateGameId(),
       config: { n: 3, mode: "leaderboard", timeLimit: 10, questions: [] },
       status: "setup",
       startedAt: null,
@@ -77,6 +84,7 @@ class GameStore {
     if (config.questions.length < needed) {
       throw new Error(`Need at least ${needed} questions`);
     }
+    this.state.gameId = generateGameId();
     this.state.config = {
       ...config,
       questions: config.questions.slice(0, needed),
@@ -103,7 +111,7 @@ class GameStore {
     }
   }
 
-  join(nickname: string): { board: number[]; questions: string[] } {
+  join(nickname: string): { gameId: string; board: number[]; questions: string[] } {
     this.checkTimeExpired();
     if (this.state.status === "setup") {
       throw new Error("Game hasn't started yet. Please wait for the host.");
@@ -126,7 +134,7 @@ class GameStore {
       firstBingoAt: null,
     };
     this.state.players.set(nickname, player);
-    return { board, questions: this.state.config.questions };
+    return { gameId: this.state.gameId, board, questions: this.state.config.questions };
   }
 
   solve(nickname: string, cellIndex: number, answeredBy: string) {

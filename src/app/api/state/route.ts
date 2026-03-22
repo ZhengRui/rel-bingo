@@ -16,6 +16,7 @@ export async function GET() {
   }));
 
   return NextResponse.json({
+    gameId: state.gameId,
     config: state.config,
     status: state.status,
     startedAt: state.startedAt,

@@ -5,6 +5,7 @@ import { useState, useEffect, useCallback } from "react";
 // ── Types ──────────────────────────────────────────────
 
 interface PlayerData {
+  gameId: string;
   nickname: string;
   board: number[];
   questions: string[];
@@ -76,6 +77,7 @@ function JoinView({ onJoined }: { onJoined: (player: PlayerData) => void }) {
         return;
       }
       const player: PlayerData = {
+        gameId: data.gameId,
         nickname: trimmed,
         board: data.board,
         questions: data.questions,
@@ -145,15 +147,17 @@ function BoardView({
   const [gameOver, setGameOver] = useState(false);
   const [rejoinConfirm, setRejoinConfirm] = useState(false);
 
-  // Check game state on mount
+  // Check game state on mount — if different game or not active, mark game over
   useEffect(() => {
     fetch("/api/state")
       .then((res) => res.json())
       .then((data) => {
-        if (data.status !== "active") setGameOver(true);
+        if (data.gameId !== player.gameId || data.status !== "active") {
+          setGameOver(true);
+        }
       })
       .catch(() => {});
-  }, []);
+  }, [player.gameId]);
 
   const n = Math.sqrt(player.board.length);
   const activeQuestionIndex =
@@ -200,7 +204,9 @@ function BoardView({
         const res = await fetch("/api/state");
         if (res.ok) {
           const data = await res.json();
-          if (data.status !== "active") setGameOver(true);
+          if (data.gameId !== player.gameId || data.status !== "active") {
+            setGameOver(true);
+          }
         }
       } catch { /* ignore, let them view */ }
     }
