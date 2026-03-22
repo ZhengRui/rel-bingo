@@ -323,7 +323,7 @@ function DashboardView({
           return (
             <div
               key={player.nickname}
-              className={`flex items-center gap-5 px-6 py-5 rounded-xl transition-all ${
+              className={`flex items-center gap-5 px-6 py-3 rounded-xl transition-all ${
                 hasBingo
                   ? "bg-gradient-to-r from-yellow-900/40 to-yellow-800/20 border border-yellow-500/50"
                   : "bg-gray-800/80"
