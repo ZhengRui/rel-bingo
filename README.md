@@ -23,18 +23,18 @@ bun run build
 ### Start with pm2
 
 ```bash
-bun add pm2
-bunx pm2 start "bun run start -p 5000 -H 0.0.0.0" --name relationship-bingo
+bun add -g pm2
+pm2 start "bun run start -p 5000 -H 0.0.0.0" --name relationship-bingo
 ```
 
 ### pm2 Commands
 
 ```bash
-bunx pm2 logs relationship-bingo     # view logs
-bunx pm2 restart relationship-bingo  # restart
-bunx pm2 stop relationship-bingo     # stop
-bunx pm2 delete relationship-bingo   # remove
-bunx pm2 status                      # list all processes
+pm2 logs relationship-bingo     # view logs
+pm2 restart relationship-bingo  # restart
+pm2 stop relationship-bingo     # stop
+pm2 delete relationship-bingo   # remove
+pm2 status                      # list all processes
 ```
 
 ### Note
