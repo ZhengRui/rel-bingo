@@ -133,16 +133,18 @@ function JoinView({ onJoined }: { onJoined: (player: PlayerData) => void }) {
 
 function BoardView({
   player,
-  onReset,
+  onRejoin,
 }: {
   player: PlayerData;
-  onReset: () => void;
+  onRejoin: () => void;
 }) {
   const [solves, setSolves] = useState<SolveData>(loadSolves);
   const [activeCell, setActiveCell] = useState<number | null>(null);
   const [inputName, setInputName] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [gameOver, setGameOver] = useState(false);
   const [gameOverPopup, setGameOverPopup] = useState(false);
+  const [rejoinConfirm, setRejoinConfirm] = useState(false);
 
   const n = Math.sqrt(player.board.length);
   const activeQuestionIndex =
@@ -150,22 +152,6 @@ function BoardView({
   const activeQuestion =
     activeQuestionIndex !== null ? player.questions[activeQuestionIndex] : null;
   const isSolved = activeCell !== null && activeCell in solves;
-
-  // Check game status periodically (to detect game over)
-  const checkGameStatus = useCallback(async () => {
-    try {
-      const res = await fetch("/api/state");
-      if (res.ok) {
-        const data = await res.json();
-        if (data.status === "ended" || data.status === "setup") {
-          return "over";
-        }
-      }
-    } catch {
-      /* network issue, ignore */
-    }
-    return "active";
-  }, []);
 
   async function handleSolve() {
     if (activeCell === null || !inputName.trim()) return;
@@ -190,6 +176,7 @@ function BoardView({
       } else {
         const data = await res.json();
         if (data.error === "Game is already over.") {
+          setGameOver(true);
           setGameOverPopup(true);
           setActiveCell(null);
         }
@@ -200,10 +187,8 @@ function BoardView({
     setSubmitting(false);
   }
 
-  // When opening a cell, check if game is still active
-  async function handleCellTap(cellIndex: number) {
-    const status = await checkGameStatus();
-    if (status === "over") {
+  function handleCellTap(cellIndex: number) {
+    if (gameOver) {
       setGameOverPopup(true);
       return;
     }
@@ -220,7 +205,7 @@ function BoardView({
       <div className="text-center mb-6">
         <h2 className="text-xl font-bold text-white">{player.nickname}</h2>
         <p className="text-purple-300 text-sm">
-          {solveCount}/{totalCells} found
+          {solveCount} / {totalCells} found
         </p>
       </div>
 
@@ -255,6 +240,16 @@ function BoardView({
           );
         })}
       </div>
+
+      {/* Rejoin button — shown after game over */}
+      {gameOver && (
+        <button
+          onClick={() => setRejoinConfirm(true)}
+          className="mt-6 px-6 py-2 bg-purple-600 text-white rounded-xl font-semibold hover:bg-purple-500 transition-colors text-sm"
+        >
+          Join New Game
+        </button>
+      )}
 
       {/* Question Popup */}
       {activeCell !== null && (
@@ -307,11 +302,7 @@ function BoardView({
       {gameOverPopup && (
         <div
           className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50"
-          onClick={() => {
-            setGameOverPopup(false);
-            clearStorage();
-            onReset();
-          }}
+          onClick={() => setGameOverPopup(false)}
         >
           <div className="bg-gray-900 border border-white/20 rounded-2xl p-8 w-full max-w-sm text-center space-y-4">
             <h3 className="text-2xl font-bold text-white">Game Over!</h3>
@@ -319,18 +310,49 @@ function BoardView({
               The game has ended. Thanks for playing!
             </p>
             <p className="text-purple-300 text-lg font-semibold">
-              You found {solveCount}/{totalCells}
+              You found {solveCount} / {totalCells}
             </p>
             <button
-              onClick={() => {
-                setGameOverPopup(false);
-                clearStorage();
-                onReset();
-              }}
+              onClick={() => setGameOverPopup(false)}
               className="w-full py-3 bg-purple-600 text-white rounded-xl font-semibold hover:bg-purple-500 transition-colors"
             >
               OK
             </button>
+          </div>
+        </div>
+      )}
+
+      {/* Rejoin Confirmation */}
+      {rejoinConfirm && (
+        <div
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50"
+          onClick={() => setRejoinConfirm(false)}
+        >
+          <div
+            className="bg-gray-900 border border-white/20 rounded-2xl p-8 w-full max-w-sm text-center space-y-4"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3 className="text-xl font-bold text-white">Join New Game?</h3>
+            <p className="text-gray-400">
+              Your current game data will be lost.
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setRejoinConfirm(false)}
+                className="flex-1 py-3 bg-gray-700 text-white rounded-xl font-semibold hover:bg-gray-600 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  clearStorage();
+                  onRejoin();
+                }}
+                className="flex-1 py-3 bg-purple-600 text-white rounded-xl font-semibold hover:bg-purple-500 transition-colors"
+              >
+                Confirm
+              </button>
+            </div>
           </div>
         </div>
       )}
@@ -344,28 +366,13 @@ export default function HomePage() {
   const [player, setPlayer] = useState<PlayerData | null>(null);
   const [checked, setChecked] = useState(false);
 
-  // On mount, check localStorage + verify game is still active
+  // On mount, always restore from localStorage if available
   useEffect(() => {
     const stored = loadPlayer();
     if (stored) {
-      fetch("/api/state")
-        .then((res) => res.json())
-        .then((data) => {
-          if (data.status === "active") {
-            setPlayer(stored);
-          } else {
-            clearStorage();
-          }
-          setChecked(true);
-        })
-        .catch(() => {
-          // Network error — trust localStorage, let them play offline
-          setPlayer(stored);
-          setChecked(true);
-        });
-    } else {
-      setChecked(true);
+      setPlayer(stored);
     }
+    setChecked(true);
   }, []);
 
   if (!checked) return null;
@@ -377,7 +384,7 @@ export default function HomePage() {
   return (
     <BoardView
       player={player}
-      onReset={() => {
+      onRejoin={() => {
         clearStorage();
         setPlayer(null);
       }}

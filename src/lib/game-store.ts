@@ -91,7 +91,20 @@ class GameStore {
     this.state.startedAt = Date.now();
   }
 
+  checkTimeExpired() {
+    if (
+      this.state.status === "active" &&
+      this.state.startedAt !== null
+    ) {
+      const elapsed = Date.now() - this.state.startedAt;
+      if (elapsed >= this.state.config.timeLimit * 60 * 1000) {
+        this.state.status = "ended";
+      }
+    }
+  }
+
   join(nickname: string): { board: number[]; questions: string[] } {
+    this.checkTimeExpired();
     if (this.state.status === "setup") {
       throw new Error("Game hasn't started yet. Please wait for the host.");
     }
@@ -117,6 +130,7 @@ class GameStore {
   }
 
   solve(nickname: string, cellIndex: number, answeredBy: string) {
+    this.checkTimeExpired();
     if (this.state.status === "setup") {
       throw new Error("Game hasn't started yet.");
     }
@@ -140,6 +154,7 @@ class GameStore {
   }
 
   getState(): GameState {
+    this.checkTimeExpired();
     return this.state;
   }
 

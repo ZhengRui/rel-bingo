@@ -365,7 +365,7 @@ function DashboardView({
 
               {/* Solve count */}
               <span className="text-4xl font-bold text-gray-400 w-28 text-center tabular-nums">
-                {player.solveCount}/{totalCells}
+                {player.solveCount} / {totalCells}
               </span>
 
               {/* Mini grid */}
