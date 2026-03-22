@@ -345,21 +345,26 @@ function DashboardView({
               </span>
 
               {/* Name + solve count */}
-              <div className="flex-1 min-w-0">
-                <span className="text-lg font-semibold truncate block">
+              <div className="flex-1 min-w-0 flex items-baseline gap-3">
+                <span className="text-2xl font-bold truncate">
                   {player.nickname}
                 </span>
-                <span className="text-sm text-gray-400">
+                <span className="text-2xl font-bold text-gray-400">
                   {player.solveCount}/{totalCells}
                 </span>
               </div>
 
               {/* Bingo pills — centered */}
-              <div className="flex-1 flex justify-center">
+              <div className="flex-1 flex justify-center items-center gap-3">
                 {hasBingo && (
-                  <span className="inline-flex items-center gap-1 px-3 py-1 bg-yellow-400 text-black text-sm font-bold rounded-full animate-pulse">
-                    BINGO x {player.bingoCount}
-                  </span>
+                  <>
+                    <span className="px-4 py-1 bg-yellow-400 text-black text-sm font-bold rounded-full animate-pulse">
+                      BINGO
+                    </span>
+                    <span className="text-2xl font-bold text-yellow-400">
+                      x {player.bingoCount}
+                    </span>
+                  </>
                 )}
               </div>
 
@@ -375,7 +380,7 @@ function DashboardView({
                   return (
                     <div
                       key={cellIdx}
-                      className={`w-4 h-4 rounded-sm ${
+                      className={`w-5 h-5 rounded-sm ${
                         solved ? "bg-green-500" : "bg-gray-600"
                       }`}
                     />
