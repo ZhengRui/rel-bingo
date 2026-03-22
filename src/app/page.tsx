@@ -344,13 +344,28 @@ export default function HomePage() {
   const [player, setPlayer] = useState<PlayerData | null>(null);
   const [checked, setChecked] = useState(false);
 
-  // On mount, check localStorage for existing session
+  // On mount, check localStorage + verify game is still active
   useEffect(() => {
     const stored = loadPlayer();
     if (stored) {
-      setPlayer(stored);
+      fetch("/api/state")
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.status === "active") {
+            setPlayer(stored);
+          } else {
+            clearStorage();
+          }
+          setChecked(true);
+        })
+        .catch(() => {
+          // Network error — trust localStorage, let them play offline
+          setPlayer(stored);
+          setChecked(true);
+        });
+    } else {
+      setChecked(true);
     }
-    setChecked(true);
   }, []);
 
   if (!checked) return null;
