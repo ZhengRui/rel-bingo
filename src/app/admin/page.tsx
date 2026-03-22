@@ -370,7 +370,7 @@ function DashboardView({
 
               {/* Mini grid */}
               <div
-                className="grid gap-1 shrink-0"
+                className="grid gap-0.5 shrink-0"
                 style={{
                   gridTemplateColumns: `repeat(${config.n}, 1fr)`,
                 }}
@@ -380,7 +380,7 @@ function DashboardView({
                   return (
                     <div
                       key={cellIdx}
-                      className={`w-7 h-7 rounded ${
+                      className={`w-5 h-5 rounded-sm ${
                         solved ? "bg-green-500" : "bg-gray-600"
                       }`}
                     />
