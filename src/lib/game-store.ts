@@ -171,4 +171,7 @@ class GameStore {
   }
 }
 
-export const gameStore = new GameStore();
+// Persist singleton across Next.js dev hot reloads
+const globalForGame = globalThis as unknown as { gameStore: GameStore };
+export const gameStore = globalForGame.gameStore || new GameStore();
+globalForGame.gameStore = gameStore;
