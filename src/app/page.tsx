@@ -188,10 +188,6 @@ function BoardView({
   }
 
   function handleCellTap(cellIndex: number) {
-    if (gameOver) {
-      setGameOverPopup(true);
-      return;
-    }
     setActiveCell(cellIndex);
     setInputName("");
   }
@@ -273,6 +269,10 @@ function BoardView({
                 <p className="text-green-300 mt-2">
                   {solves[activeCell]}
                 </p>
+              </div>
+            ) : gameOver ? (
+              <div className="text-center py-2">
+                <p className="text-gray-400">Not solved</p>
               </div>
             ) : (
               <>
