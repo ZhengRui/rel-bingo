@@ -143,26 +143,7 @@ function BoardView({
   const [inputName, setInputName] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [gameOver, setGameOver] = useState(false);
-  const [gameOverPopup, setGameOverPopup] = useState(false);
   const [rejoinConfirm, setRejoinConfirm] = useState(false);
-
-  // Poll for game-over (catches time expiry even if player isn't solving)
-  useEffect(() => {
-    if (gameOver) return;
-    const poll = setInterval(async () => {
-      try {
-        const res = await fetch("/api/state");
-        if (res.ok) {
-          const data = await res.json();
-          if (data.status === "ended" || data.status === "setup") {
-            setGameOver(true);
-            setGameOverPopup(true);
-          }
-        }
-      } catch { /* ignore */ }
-    }, 5000);
-    return () => clearInterval(poll);
-  }, [gameOver]);
 
   const n = Math.sqrt(player.board.length);
   const activeQuestionIndex =
@@ -195,8 +176,6 @@ function BoardView({
         const data = await res.json();
         if (data.error === "Game is already over.") {
           setGameOver(true);
-          setGameOverPopup(true);
-          setActiveCell(null);
         }
       }
     } catch {
@@ -277,6 +256,14 @@ function BoardView({
           }}
         >
           <div className="bg-gray-900 border border-white/20 rounded-2xl p-6 w-full max-w-sm space-y-5">
+            {gameOver && (
+              <div className="text-center py-1">
+                <span className="px-4 py-1 bg-red-600 text-white text-sm font-bold rounded-full">
+                  Game Over
+                </span>
+              </div>
+            )}
+
             <p className="text-lg font-semibold text-white text-center leading-relaxed">
               {activeQuestion}
             </p>
@@ -312,30 +299,6 @@ function BoardView({
                 </button>
               </>
             )}
-          </div>
-        </div>
-      )}
-
-      {/* Game Over Popup */}
-      {gameOverPopup && (
-        <div
-          className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50"
-          onClick={() => setGameOverPopup(false)}
-        >
-          <div className="bg-gray-900 border border-white/20 rounded-2xl p-8 w-full max-w-sm text-center space-y-4">
-            <h3 className="text-2xl font-bold text-white">Game Over!</h3>
-            <p className="text-gray-400">
-              The game has ended. Thanks for playing!
-            </p>
-            <p className="text-purple-300 text-lg font-semibold">
-              You found {solveCount} / {totalCells}
-            </p>
-            <button
-              onClick={() => setGameOverPopup(false)}
-              className="w-full py-3 bg-purple-600 text-white rounded-xl font-semibold hover:bg-purple-500 transition-colors"
-            >
-              OK
-            </button>
           </div>
         </div>
       )}
