@@ -17,7 +17,6 @@ interface SolveData {
 
 const STORAGE_KEY = "relationship-bingo-player";
 const SOLVES_KEY = "relationship-bingo-solves";
-const GAMEOVER_KEY = "relationship-bingo-gameover";
 
 function savePlayer(player: PlayerData) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(player));
@@ -45,23 +44,9 @@ function loadSolves(): SolveData {
   }
 }
 
-function saveGameOver(value: boolean) {
-  localStorage.setItem(GAMEOVER_KEY, JSON.stringify(value));
-}
-
-function loadGameOver(): boolean {
-  try {
-    const stored = localStorage.getItem(GAMEOVER_KEY);
-    return stored ? JSON.parse(stored) : false;
-  } catch {
-    return false;
-  }
-}
-
 function clearStorage() {
   localStorage.removeItem(STORAGE_KEY);
   localStorage.removeItem(SOLVES_KEY);
-  localStorage.removeItem(GAMEOVER_KEY);
 }
 
 // ── Join Screen ────────────────────────────────────────
@@ -99,7 +84,6 @@ function JoinView({ onJoined }: { onJoined: (player: PlayerData) => void }) {
       };
       savePlayer(player);
       saveSolves({});
-      saveGameOver(false);
       onJoined(player);
     } catch {
       setError("Network error");
@@ -160,15 +144,10 @@ function BoardView({
   const [activeCell, setActiveCell] = useState<number | null>(null);
   const [inputName, setInputName] = useState("");
   const [submitting, setSubmitting] = useState(false);
-  const [gameOver, setGameOverState] = useState(loadGameOver);
+  const [gameOver, setGameOver] = useState(false);
   const [rejoinConfirm, setRejoinConfirm] = useState(false);
 
-  function setGameOver(value: boolean) {
-    setGameOverState(value);
-    saveGameOver(value);
-  }
-
-  // Check game state on mount — if different game or not active, mark game over
+  // Check game state on mount — derive gameOver from gameId comparison
   useEffect(() => {
     fetch("/api/state")
       .then((res) => res.json())
