@@ -228,6 +228,8 @@ function DashboardView({
 }) {
   const [state, setState] = useState<GameState | null>(null);
   const [now, setNow] = useState(Date.now());
+  const [selectedPlayer, setSelectedPlayer] = useState<PlayerState | null>(null);
+  const [selectedCell, setSelectedCell] = useState<number | null>(null);
 
   const fetchState = useCallback(async () => {
     try {
@@ -323,7 +325,8 @@ function DashboardView({
           return (
             <div
               key={player.nickname}
-              className={`flex items-center gap-5 px-6 py-3 rounded-xl transition-all ${
+              onClick={() => { setSelectedPlayer(player); setSelectedCell(null); }}
+              className={`flex items-center gap-5 px-6 py-3 rounded-xl transition-all cursor-pointer hover:ring-1 hover:ring-white/20 ${
                 hasBingo
                   ? "bg-gradient-to-r from-yellow-900/40 to-yellow-800/20 border border-yellow-500/50"
                   : "bg-gray-800/80"
@@ -399,6 +402,76 @@ function DashboardView({
           </div>
         )}
       </div>
+
+      {/* Player Detail Popup */}
+      {selectedPlayer && (
+        <div
+          className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-6 z-50"
+          onClick={() => { setSelectedPlayer(null); setSelectedCell(null); }}
+        >
+          <div
+            className="bg-gray-900 border border-white/20 rounded-2xl p-8 w-full max-w-lg space-y-6"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Player name */}
+            <div className="text-center">
+              <h3 className="text-3xl font-bold text-white">
+                {selectedPlayer.nickname}
+              </h3>
+              <p className="text-gray-400 mt-1">
+                {selectedPlayer.solveCount} / {totalCells} solved
+              </p>
+            </div>
+
+            {/* Big grid */}
+            <div
+              className="grid gap-2 mx-auto"
+              style={{
+                gridTemplateColumns: `repeat(${config.n}, 1fr)`,
+                maxWidth: `${config.n * 80}px`,
+              }}
+            >
+              {Array.from({ length: totalCells }).map((_, cellIdx) => {
+                const solved = cellIdx in selectedPlayer.solves;
+                const isSelected = selectedCell === cellIdx;
+                return (
+                  <button
+                    key={cellIdx}
+                    onClick={() => setSelectedCell(isSelected ? null : cellIdx)}
+                    className={`aspect-square rounded-lg flex items-center justify-center text-lg font-bold transition-all ${
+                      solved
+                        ? isSelected
+                          ? "bg-green-500 text-white ring-2 ring-white"
+                          : "bg-green-500/70 text-white hover:bg-green-500"
+                        : isSelected
+                          ? "bg-gray-500 text-white ring-2 ring-white"
+                          : "bg-gray-700 text-gray-400 hover:bg-gray-600"
+                    }`}
+                  >
+                    {solved ? "\u2713" : "?"}
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Question detail */}
+            {selectedCell !== null && (
+              <div className="bg-gray-800 rounded-xl p-4 space-y-3">
+                <p className="text-white text-center leading-relaxed whitespace-pre-line">
+                  {config.questions[selectedPlayer.board[selectedCell]]}
+                </p>
+                {selectedCell in selectedPlayer.solves ? (
+                  <p className="text-green-400 text-center font-semibold">
+                    {selectedPlayer.solves[selectedCell].answeredBy}
+                  </p>
+                ) : (
+                  <p className="text-gray-500 text-center">Not resolved</p>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
