@@ -145,6 +145,16 @@ function BoardView({
   const [gameOver, setGameOver] = useState(false);
   const [rejoinConfirm, setRejoinConfirm] = useState(false);
 
+  // Check game state on mount
+  useEffect(() => {
+    fetch("/api/state")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.status !== "active") setGameOver(true);
+      })
+      .catch(() => {});
+  }, []);
+
   const n = Math.sqrt(player.board.length);
   const activeQuestionIndex =
     activeCell !== null ? player.board[activeCell] : null;
@@ -184,7 +194,16 @@ function BoardView({
     setSubmitting(false);
   }
 
-  function handleCellTap(cellIndex: number) {
+  async function handleCellTap(cellIndex: number) {
+    if (!gameOver) {
+      try {
+        const res = await fetch("/api/state");
+        if (res.ok) {
+          const data = await res.json();
+          if (data.status !== "active") setGameOver(true);
+        }
+      } catch { /* ignore, let them view */ }
+    }
     setActiveCell(cellIndex);
     setInputName("");
   }
