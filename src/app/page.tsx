@@ -187,10 +187,8 @@ function BoardView({
         setActiveCell(null);
         setInputName("");
       } else {
-        const data = await res.json();
-        if (data.error === "Game is already over.") {
-          setGameOver(true);
-        }
+        // Any error (game over, player not found, etc.) means game has changed
+        setGameOver(true);
       }
     } catch {
       // network error — solve saved locally, can retry
@@ -372,11 +370,16 @@ export default function HomePage() {
   const [player, setPlayer] = useState<PlayerData | null>(null);
   const [checked, setChecked] = useState(false);
 
-  // On mount, always restore from localStorage if available
+  // On mount, restore from localStorage. If no gameId, it's stale — clear it.
   useEffect(() => {
     const stored = loadPlayer();
     if (stored) {
-      setPlayer(stored);
+      if (!stored.gameId) {
+        // Legacy data without gameId — clear it
+        clearStorage();
+      } else {
+        setPlayer(stored);
+      }
     }
     setChecked(true);
   }, []);
