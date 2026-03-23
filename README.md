@@ -12,29 +12,61 @@ bun run dev -p 5000 --hostname 0.0.0.0
 - Player: `http://localhost:5000`
 - Admin: `http://localhost:5000/admin`
 
-## Production Deployment
+## Deploy on Aliyun
 
-### Build
+### 1. Create instance
+
+Set up a spot instance from template.
+
+### 2. Install dependencies
 
 ```bash
-bun run build
+sudo apt update
+
+# clone repo
+git clone git@github.com:ZhengRui/rel-bingo.git
+cd rel-bingo
+
+# install nvm
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.4/install.sh | bash
+source ~/.bashrc
+
+# install node & bun
+nvm install 24.14.0
+npm install -g bun
 ```
 
-### Start with pm2
+### 3. Configure bun registry
+
+Create `~/.bunfig.toml`:
+
+```toml
+[install]
+registry = "https://registry.npmmirror.com"
+```
+
+### 4. Install pm2
 
 ```bash
 bun add -g pm2
-pm2 start "bun run start -p 5000 -H 0.0.0.0" --name relationship-bingo
+```
+
+### 5. Build and serve
+
+```bash
+bun install
+bun run build
+~/.bun/bin/pm2 start "bun run start -p 5000 -H 0.0.0.0" --name relationship-bingo
 ```
 
 ### pm2 Commands
 
 ```bash
-pm2 logs relationship-bingo     # view logs
-pm2 restart relationship-bingo  # restart
-pm2 stop relationship-bingo     # stop
-pm2 delete relationship-bingo   # remove
-pm2 status                      # list all processes
+~/.bun/bin/pm2 logs relationship-bingo     # view logs
+~/.bun/bin/pm2 restart relationship-bingo  # restart
+~/.bun/bin/pm2 stop relationship-bingo     # stop
+~/.bun/bin/pm2 delete relationship-bingo   # remove
+~/.bun/bin/pm2 status                      # list all processes
 ```
 
 ### Note
